@@ -69,7 +69,7 @@ class CalculateurPrix:
         # Application des taxes et frais de livraison
         ##############################################################
         # FIXME: _chercher_taux inefficace
-        frais_livraison = self._chercher_frais_livraison(client.type_client)
+        frais_livraison = self._chercher_frais_livraison(produit.type_produit)
         prix_final = prix_base + frais_livraison
         print(f"   Livraison: +{frais_livraison:.2f}")
         print(f"   💵 Prix final: {prix_final:.2f}")
