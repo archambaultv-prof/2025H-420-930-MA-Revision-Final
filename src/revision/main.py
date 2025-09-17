@@ -1,4 +1,3 @@
-
 class Produit:   
     def __init__(self, nom: str, prix: float, type_produit: str):
         self.nom = nom
@@ -15,61 +14,52 @@ class Client:
 class CalculateurPrix:
     
     def __init__(self):
-        # FIXME: Structures de données inefficaces
-        self.frais_livraison = [
-            ("livre", 5.99),
-            ("electronique", 12.99),
-            ("vetement", 6.99)
-        ]
+        # Utilisation d'un dictionnaire pour accès plus rapide
+        self.frais_livraison = {
+            "livre": 5.99,
+            "electronique": 12.99,
+            "vetement": 6.99
+        }
 
     def _chercher_frais_livraison(self, type_produit: str) -> float:
-        # FIXME: Recherche linéaire inefficace
-        for element in self.frais_livraison:
-            if element[0] == type_produit:
-                return element[1]
-        return 7.99  # Défaut
+        # Recherche efficace dans le dictionnaire
+        return self.frais_livraison.get(type_produit, 7.99) 
+
+    def _calculer_remise_et_points(self, prix_base: float, type_client: str):
+        if type_client == "premium":
+            remise = prix_base * 0.15
+            points = int(prix_base // 10)
+        elif type_client == "entreprise":
+            remise = prix_base * 0.10
+            points = int(prix_base // 20)
+        else:
+            remise = prix_base * 0.05
+            points = int(prix_base // 50)
+        return remise, points
     
     def afficher_prix_final(self, produit: Produit, client: Client) -> None:
-        # FIXME: Méthode trop longue (fait : ajustements pays, produit, client, taxes, livraison, affichage)
         print(f"🧮 Calcul pour {produit.nom} - {client.nom} ({client.type_client})")
-        
         prix_base = produit.prix
         print(f"   Prix de base: {prix_base:.2f}")
         
         ##############################################################
         # Modification du prix selon type de client
         ##############################################################
-        # FIXME: Arbre if/elif -> code difficile à étendre
+        remise, points_fidelite = self._calculer_remise_et_points(prix_base, client.type_client)
+        prix_base -= remise
         if client.type_client == "premium":
-            # FIXME:  Calcul dupliqué, devrait être dans une méthode dédiée
-            remise_premium = prix_base * 0.20
-            points_fidelite = int(prix_base // 10)
-
-            prix_base -= remise_premium
-            print(f"   Remise premium: -{remise_premium:.2f}")
-            print(f"   Points fidélité gagnés: {points_fidelite}")
+            print(f"   Remise premium: -{remise:.2f}")
         elif client.type_client == "entreprise":
-            # FIXME:  Calcul dupliqué, devrait être dans une méthode dédiée
-            remise_entreprise = prix_base * 0.15
-            points_fidelite = int(prix_base // 20)
-
-            prix_base -= remise_entreprise
-            print(f"   Remise entreprise: -{remise_entreprise:.2f}")
-            print(f"   Points fidélité gagnés: {points_fidelite}")
+            print(f"   Remise entreprise: -{remise:.2f}")
         else:
-            # FIXME:  Calcul dupliqué, devrait être dans une méthode dédiée
-            remise_standard = prix_base * 0.05
-            points_fidelite = int(prix_base // 50)
-
-            prix_base -= remise_standard
-            print(f"   Remise standard: -{remise_standard:.2f}")
-            print(f"   Points fidélité gagnés: {points_fidelite}")
+            print(f"   Remise standard: -{remise:.2f}")
+        print(f"   Points fidélité gagnés: {points_fidelite}")
         
         ##############################################################
         # Application des taxes et frais de livraison
         ##############################################################
-        # FIXME: _chercher_taux inefficace
-        frais_livraison = self._chercher_frais_livraison(client.type_client)
+        # utilise le type de produit pour les frais de livraison
+        frais_livraison = self._chercher_frais_livraison(produit.type_produit)
         prix_final = prix_base + frais_livraison
         print(f"   Livraison: +{frais_livraison:.2f}")
         print(f"   💵 Prix final: {prix_final:.2f}")
@@ -77,7 +67,7 @@ class CalculateurPrix:
 
 def main():
     """Démonstration du calculateur avec ses défauts"""
-    # FIXME: main mélange démonstration et test manuel (pas de tests automatisés fournis)
+   
     print("=" * 50)
     print(" DÉMONSTRATION CALCULATEUR ")
     print("=" * 50)
