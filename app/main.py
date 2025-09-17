@@ -1,98 +1,7 @@
-from abc import ABC, abstractmethod
-
-class Produit:   
-    def __init__(self, nom: str, prix: float, type_produit: str):
-        self.nom = nom
-        self.prix = prix
-        self.type_produit = type_produit
+from models import Produit, Client
+from strategies import Premium, Entreprise, Standard
 
 
-class Client:
-    def __init__(self, nom: str, type_client: str):
-        self.nom = nom
-        self.type_client = type_client
-
-
-# I FIX YOU  avec PATRON STRATEGY
-# Probleme : Calculs de remise dupliquée dans les if/elif
-#  il a des clients (premium, entreprise et standard)
-
-class StrategieRemise(ABC):
-    @abstractmethod
-    def calculer(self, prix_base: float) -> float:
-        pass
-
-class RemisePremium(StrategieRemise):
-    def calculer(self, prix_base: float) -> float:
-        return prix_base * 0.20
-
-class RemiseEntreprise(StrategieRemise):
-    def calculer(self, prix_base: float) -> float:
-        return prix_base * 0.15
-
-class RemiseStandard(StrategieRemise):
-    def calculer(self, prix_base: float) -> float:
-        return prix_base * 0.05
-
-# Chaque groupe de clients a son propre calcul de points de fidélité. Je m'interroge sur le fait d'ajouter
-# le calcul points_fidelite directement dans la remise ou non.
-# Je vais choisir de respecter le principe de responsabilité unique et créer chacun dans leur classe également.
-
-class Points(ABC):
-    @abstractmethod
-    def calculer(self, prix_base: float) -> int:
-        pass
-
-class PointsPremium(Points):
-    def calculer(self, prix_base: float) -> int:
-        return int(prix_base // 10)
-
-class PointsEntreprise(Points):
-    def calculer(self, prix_base: float) -> int:
-        return int(prix_base // 20)
-
-class PointsStandard(Points):
-    def calculer(self, prix_base: float) -> int:
-        return int(prix_base // 50)
-
-
-# Chacun de nos clients appelle deux classes, donc le multiple choix se passe ici
-# On va réellement implémenter l'abstract factory ici avec chaque type de client
-
-class CreateurClient(ABC):
-    @abstractmethod
-    def remise(self) -> StrategieRemise:
-        pass
-    
-    @abstractmethod
-    def points(self) -> Points:
-        pass
-
-
-class Premium(CreateurClient):
-    def remise(self) -> StrategieRemise:
-        return RemisePremium()
-    
-    def points(self) -> Points:
-        return PointsPremium()
-
-class Entreprise(CreateurClient):
-    def remise(self) -> StrategieRemise:
-        return RemiseEntreprise()
-    
-    def points(self) -> Points:
-        return PointsEntreprise()
-
-class Standard(CreateurClient):
-    def remise(self) -> StrategieRemise:
-        return RemiseStandard()
-    
-    def points(self) -> Points:
-        return PointsStandard()
-
-
-
-# =====================================================================================
 class CalculateurPrix:
     
     def __init__(self):
@@ -113,11 +22,9 @@ class CalculateurPrix:
             "standard": Standard()
         }
 
-
-    # Recherche directe dans un dictionnaire plutot que dans la liste lineaire
     def _chercher_frais_livraison(self, type_produit: str) -> float:
+    # Recherche directe dans un dictionnaire plutot que dans la liste lineaire
         return self.frais_livraison.get(type_produit, 7.99)
-
     
     def afficher_prix_final(self, produit: Produit, client: Client) -> None:
         # FIXME: Méthode trop longue (fait : ajustements pays, produit, client, taxes, livraison, affichage)
@@ -126,10 +33,8 @@ class CalculateurPrix:
         prix_base = produit.prix
         print(f"   Prix de base: {prix_base:.2f}")
         
-
         # FIXME: Arbre if/elif -> code difficile à étendre
         # on n'a plus besoin des chiffres codés en dur on apelle directement les abstractions
-        # Obtenir la fabrique appropriée (extensible)
         fabrique = self.fabriques_clients.get(client.type_client, self.fabriques_clients["standard"])
         
         # Créer les stratégies via la fabrique
@@ -191,6 +96,7 @@ def main():
 
     print("\n📱 Test 3: Smartphone - Client standard")
     calculateur.afficher_prix_final(smartphone, client_us)
+
 
 if __name__ == "__main__":
     main()
